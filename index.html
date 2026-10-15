@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SS TRADERS MART · Amazon Pricing Calculator</title>
+<style>
+:root{
+  --bg:#faf6ee; --card:#ffffff; --ink:#2b2620; --muted:#8a8177;
+  --accent:#e07856; --accent-dark:#c65f3e; --green:#2f6b4f; --line:#ece4d4;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;padding-bottom:60px}
+header{background:var(--ink);color:#fff;padding:22px 18px;text-align:center}
+header .brand{font-size:20px;font-weight:800;letter-spacing:2px}
+header .sub{font-size:13px;color:#d8cfc0;margin-top:4px}
+.wrap{max-width:860px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:14px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card h2{font-size:15px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.card h2 .num{background:#e9e2d2;color:var(--ink);font-size:12px;width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+.card .desc{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:4px}
+.field input,.field select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:#fff;color:var(--ink)}
+.field .hint{font-size:11.5px;color:var(--muted);margin-top:3px}
+.row{display:flex;gap:10px;align-items:center}
+.toggle{position:relative;width:46px;height:26px;flex:none;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.toggle .sl{position:absolute;inset:0;background:#cfc8b8;border-radius:20px;transition:.2s}
+.toggle .sl:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.toggle input:checked + .sl{background:var(--green)}
+.toggle input:checked + .sl:before{transform:translateX(20px)}
+.togglerow{display:flex;gap:12px;align-items:flex-start;background:#f7f3e9;border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.togglerow .tt{font-size:13.5px;font-weight:700}
+.togglerow .ts{font-size:11.5px;color:var(--muted)}
+.bigprice{font-size:38px;font-weight:800;color:var(--accent-dark);margin:6px 0}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+table th,table td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:right}
+table th:first-child,table td:first-child{text-align:left}
+table th{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+tr.hl td{font-weight:800;color:var(--accent-dark);font-size:15px}
+tr.trow{background:#fdf3ec}
+.tag{display:inline-block;font-size:10.5px;background:#e9f3ec;color:var(--green);border-radius:20px;padding:2px 8px;margin-left:6px;font-weight:700}
+.note{background:#eef4ef;border:1px solid #d8e5da;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#3c5a45;margin-top:10px}
+.warn{background:#fdf0e8;border:1px solid #f3d3bd;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#8a4a24;margin-top:10px}
+.btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:15px;font-weight:700;cursor:pointer}
+.btn:hover{background:var(--accent-dark)}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.small{padding:7px 12px;font-size:13px}
+.prod{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:#fff}
+.prod .pn{font-weight:700;font-size:14.5px}
+.prod .pd{font-size:12.5px;color:var(--muted);margin:4px 0}
+.prod .pa{margin-top:8px;display:flex;gap:8px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+.expl{font-size:12px;color:var(--muted);background:#f7f3e9;border-radius:8px;padding:8px 10px;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">SS TRADERS MART</div>
+  <div class="sub">Amazon.in Pricing Calculator</div>
+</header>
+<div class="wrap">
+
+<div class="card">
+  <h2><span class="num">01</span> Product details</h2>
+  <div class="desc">Enter your product's real costs. All amounts in ₹, GST-inclusive.</div>
+  <div class="grid">
+    <div class="field"><label>Product name</label><input id="pname" placeholder="e.g. Coconut dehusker"></div>
+    <div class="field"><label>Product cost ₹ (what you pay supplier)</label><input id="cost" type="number" min="0" step="1" value="230"></div>
+    <div class="field"><label>Packaging cost ₹ per order</label><input id="pack" type="number" min="0" step="1" value="15"></div>
+    <div class="field"><label>Packed weight (grams)</label><input id="weightG" type="number" min="1" step="1" value="1000"><div class="hint">Weigh it packed &amp; ready to ship.</div></div>
+    <div class="field"><label>STEP level</label><select id="step"><option value="standard" selected>Standard</option><option value="premium">Premium</option><option value="advanced">Advanced</option><option value="basic">Basic</option></select></div>
+    <div class="field"><label>Referral fee % (only if price &gt; ₹1,000)</label><input id="aboveRate" type="number" min="0" step="0.1" value="10"><div class="hint">Home &amp; Kitchen ≤ ₹1,000 = 0% referral.</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2><span class="num">02</span> Target margin &amp; orders</h2>
+  <div class="desc">Your profit goal and your own sales estimate.</div>
+  <div class="grid">
+    <div class="field"><label>Target margin %</label><input id="margin" type="number" min="1" max="90" step="1" value="32"></div>
+    <div class="field"><label>Expected orders per month</label><input id="orders" type="number" min="0" step="1" value="50"><div class="hint">Your estimate — actual orders depend on price, listing, images, reviews.</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2><span class="num">03</span> Your price</h2>
+  <div class="desc">Suggested selling price to hit your target margin after all costs.</div>
+  <div class="bigprice" id="bigPrice">₹–</div>
+  <div id="marginLine" style="font-size:13px;color:var(--muted)"></div>
+  <table id="breakTable"></table>
+  <div class="expl" id="shipExpl"></div>
+  <div class="note" id="monthlyLine"></div>
+</div>
+
+<div class="card">
+  <h2><span class="num">04</span> Suggested prices</h2>
+  <div class="desc">Compare margins — and monthly totals — side by side.</div>
+  <div style="overflow-x:auto"><table id="suggTable"></table></div>
+  <div class="note">Profit = after Amazon fees, returns, ads &amp; GST. Monthly total = profit × completed sales. Rows below your competitor price are tagged.</div>
+</div>
+
+<div class="card">
+  <h2><span class="num">05</span> Beat competitor</h2>
+  <div class="desc">Price below your rival and see both profits.</div>
+  <div class="grid">
+    <div class="field"><label>Competitor price ₹</label><input id="compPrice" type="number" min="0" step="1" value="799"></div>
+    <div class="field"><label>Beat by ₹</label><input id="beatBy" type="number" min="0" step="1" value="5"></div>
+    <div class="field"><label>Competitor product cost ₹ (if known)</label><input id="compCost" type="number" min="0" step="1" value="230"></div>
+    <div class="field"><label>Competitor packaging ₹</label><input id="compPack" type="number" min="0" step="1" value="15"></div>
+  </div>
+  <table id="compTable"></table>
+</div>
+
+<div class="card">
+  <h2><span class="num">06</span> GST</h2>
+  <div class="desc">Calculate tax and eligible input credit.</div>
+  <div class="grid">
+    <div class="field"><label>Product GST rate %</label><select id="gstRate"><option>5</option><option>12</option><option selected>18</option><option>28</option></select></div>
+    <div></div>
+  </div>
+  <div class="togglerow"><label class="toggle"><input type="checkbox" id="itcProduct" checked><span class="sl"></span></label><div><div class="tt">Supplier gives GST invoice</div><div class="ts">Claim ITC on product + packaging</div></div></div>
+  <div class="togglerow"><label class="toggle"><input type="checkbox" id="itcFees" checked><span class="sl"></span></label><div><div class="tt">Claim ITC on Amazon fees</div><div class="ts">Uses the GST already included in Amazon fees</div></div></div>
+  <div class="note">Selling price includes GST. Output GST on sales minus ITC on purchases and Amazon fees = net GST you pay the government.</div>
+</div>
+
+<div class="card">
+  <h2><span class="num">07</span> Returns &amp; ads</h2>
+  <div class="desc">Protect your price against returns; add future ad spend.</div>
+  <div class="grid">
+    <div class="field"><label>Expected return rate %</label><input id="returnRate" type="number" min="0" max="100" step="0.5" value="10"><div class="hint">Amazon does not refund closing fee &amp; shipping on returns.</div></div>
+    <div class="field"><label>Cost per return ₹</label><input id="costPerReturn" type="number" min="0" step="1" value=""><div class="hint">Auto = shipping + closing + GST. You can type your own.</div></div>
+    <div class="field"><label>Ad spend per order ₹</label><input id="adSpend" type="number" min="0" step="1" value="0"><div class="hint">Future Amazon ads — keep 0 if no ads.</div></div>
+  </div>
+  <div id="returnWarn"></div>
+</div>
+
+<div class="card">
+  <h2><span class="num">08</span> My Products</h2>
+  <div class="desc">Save products, edit rates later, check before uploading to Amazon.</div>
+  <div class="row" style="margin-bottom:12px"><button class="btn" id="saveBtn">Save this product</button></div>
+  <div id="prodList"></div>
+</div>
+
+</div>
+<footer>Fee estimates per Amazon.in rate card (Easy Ship). Verify final fees in Seller Central.<br>Built for SS TRADERS MART.</footer>
+<script>
+/* ---------- Verified Amazon.in fee logic (Easy Ship, Oct 2026) ---------- */
+function closingFee(sp){ if(sp<=300) return 2; if(sp<=500) return 23; if(sp<=1000) return 48; return 79; }
+function referralFee(sp, rate){ return sp<=1000 ? 0 : sp*rate/100; }
+const SHIP_BASE={standard:[55,75,112],premium:[53,73,110],advanced:[53,73,110],basic:[59,79,116]};
+function shipFee(w, step){
+  const b=SHIP_BASE[step]||SHIP_BASE.standard;
+  if(w<=500) return {fee:b[0],expl:w+" g → up to 500 g slab = ₹"+b[0]};
+  if(w<=1000) return {fee:b[1],expl:w+" g → 500 g–1 kg slab = ₹"+b[1]};
+  if(w<=2000) return {fee:b[2],expl:w+" g → 1–2 kg slab = ₹"+b[2]};
+  if(w<=5000){ const k=Math.ceil((w-2000)/1000); return {fee:b[2]+34*k,expl:w+" g → 1–2 kg slab ₹"+b[2]+" + "+k+" addl. kg × ₹34 = ₹"+(b[2]+34*k)}; }
+  const k3=3, kx=Math.ceil((w-5000)/1000);
+  return {fee:b[2]+34*k3+18*kx,expl:w+" g → 1–2 kg slab ₹"+b[2]+" + 3 kg × ₹34 + "+kx+" kg × ₹18 = ₹"+(b[2]+34*k3+18*kx)};
+}
+const $=id=>document.getElementById(id);
+const fmt=n=>"₹"+(Math.round(n*100)/100).toLocaleString("en-IN",{maximumFractionDigits:2});
+
+function getParams(){
+  return {
+    cost:+$("cost").value||0, pack:+$("pack").value||0,
+    weightG:Math.max(1,+$("weightG").value||1), step:$("step").value,
+    aboveRate:+$("aboveRate").value||0, margin:+$("margin").value||32,
+    orders:+$("orders").value||0,
+    compPrice:+$("compPrice").value||0, beatBy:+$("beatBy").value||0,
+    compCost:+$("compCost").value||0, compPack:+$("compPack").value||0,
+    returnRate:+$("returnRate").value||0,
+    cprAuto:$("costPerReturn").value===""||$("costPerReturn").dataset.auto==="1",
+    cprManual:+$("costPerReturn").value||0,
+    adSpend:+$("adSpend").value||0,
+    gstRate:+$("gstRate").value||18,
+    itcProduct:$("itcProduct").checked, itcFees:$("itcFees").checked
+  };
+}
+
+function calc(sp,p,overrideCost,overridePack){
+  const cost=overrideCost!==undefined?overrideCost:p.cost;
+  const pack=overridePack!==undefined?overridePack:p.pack;
+  const referral=referralFee(sp,p.aboveRate), closing=closingFee(sp);
+  const sh=shipFee(p.weightG,p.step), shipping=sh.fee;
+  const gstFees=0.18*(referral+closing+shipping);
+  const totalFees=referral+closing+shipping+gstFees;
+  const r=p.returnRate/100;
+  const autoCpr=shipping+closing+0.18*(shipping+closing);
+  const cpr=p.cprAuto?autoCpr:p.cprManual;
+  const reserve=r>=1?Infinity:(r/(1-r))*cpr;
+  const g=p.gstRate/(100+p.gstRate);
+  const outputGST=sp*g;
+  const itcP=p.itcProduct?(cost+pack)*g:0;
+  const itcF=p.itcFees?gstFees:0;
+  const netGST=outputGST-itcP-itcF;
+  const payout=sp-totalFees;
+  const profit=sp-totalFees-cost-pack-reserve-p.adSpend-netGST;
+  const margin=sp>0?profit/sp*100:0;
+  return {referral,closing,shipping,gstFees,totalFees,reserve,outputGST,itcP,itcF,netGST,payout,profit,margin,cpr,shipExpl:sh.expl,cost,pack};
+}
+
+function solvePrice(marginPct,p){
+  const m=marginPct/100;
+  let lo=Math.max(p.cost+p.pack+1,1), hi=Math.max(lo*4+3000,8000);
+  const f=s=>calc(s,p).profit-m*s;
+  if(f(hi)<0) hi*=8;
+  for(let i=0;i<80;i++){const mid=(lo+hi)/2; if(f(mid)>0) hi=mid; else lo=mid;}
+  return (lo+hi)/2;
+}
+
+function render(){
+  const p=getParams();
+  if(p.returnRate>=100){ $("returnWarn").innerHTML='<div class="warn">100% return rate is unsustainable — every order returns. Lower the rate.</div>'; }
+  else $("returnWarn").innerHTML="";
+
+  // main result
+  const sp=solvePrice(p.margin,p);
+  const c=calc(sp,p);
+  $("bigPrice").textContent=fmt(sp);
+  $("marginLine").textContent="Target margin "+p.margin+"% · Final margin "+c.margin.toFixed(1)+"% (after GST, returns & ads)";
+
+  const rows=[
+    ["Selling price",fmt(sp),""],
+    ["Referral fee",fmt(c.referral),c.referral===0?"0% (≤ ₹1,000)":""],
+    ["Closing fee",fmt(c.closing),""],
+    ["Easy Ship shipping",fmt(c.shipping),""],
+    ["GST on Amazon fees (18%)",fmt(c.gstFees),""],
+    ["Total Amazon fees",fmt(c.totalFees),""],
+    ["Payout (price − fees)",fmt(c.payout),""],
+    ["Product cost",fmt(c.cost),""],
+    ["Packaging",fmt(c.pack),""],
+    ["Return reserve ("+p.returnRate+"%)",fmt(c.reserve),""],
+    ["Ad spend / order",fmt(p.adSpend),""],
+    ["Output GST",fmt(c.outputGST),""],
+    ["Less: ITC",fmt(c.itcP+c.itcF),""],
+    ["Net GST payable",fmt(c.netGST),c.netGST<0?"ITC credit":""],
+  ];
+  let html=rows.map(r=>"<tr><td>"+r[0]+"</td><td>"+r[1]+"</td></tr>").join("");
+  html+='<tr class="hl"><td>Final profit (after GST)</td><td>'+fmt(c.profit)+'</td></tr>';
+  $("breakTable").innerHTML=html;
+  $("shipExpl").textContent="Shipping: "+c.shipExpl;
+
+  const r=p.returnRate/100, completed=p.orders*(1-r);
+  const monthly=c.profit*completed;
+  $("monthlyLine").innerHTML="Total monthly profit: <b>"+fmt(monthly)+"</b> &nbsp;·&nbsp; "+p.orders+" orders × "+Math.round((1-r)*100)+"% completion = "+Math.round(completed)+" sales";
+
+  // suggested prices
+  const margins=[10,15,20,25,30,32,35,40];
+  let st='<tr><th>Margin</th><th>Price</th><th>Fees</th><th>Profit</th><th>Monthly total</th></tr>';
+  margins.forEach(m=>{
+    const s2=solvePrice(m,p), c2=calc(s2,p);
+    const mt=c2.profit*p.orders*(1-r);
+    const tag=(p.compPrice>0&&s2<p.compPrice)?'<span class="tag">below competitor</span>':"";
+    const hl=m===p.margin?' class="trow' +'"':"";
+    st+='<tr'+(m===p.margin?' class="trow"':"")+"><td><b>"+m+"%</b>"+(m===p.margin?' <span class="tag">your target</span>':"")+"</td><td>"+fmt(s2)+tag+"</td><td>"+fmt(c2.totalFees)+"</td><td>"+fmt(c2.profit)+"</td><td>"+fmt(mt)+"</td></tr>";
+  });
+  $("suggTable").innerHTML=st;
+
+  // beat competitor
+  const myP=Math.max(1,p.compPrice-p.beatBy);
+  const mc=calc(myP,p), cc=calc(p.compPrice,p,p.compCost,p.compPack);
+  let ct='<tr><th></th><th>You ('+fmt(myP)+')</th><th>Competitor ('+fmt(p.compPrice)+')</th></tr>';
+  ct+="<tr><td>Amazon fees</td><td>"+fmt(mc.totalFees)+"</td><td>"+fmt(cc.totalFees)+"</td></tr>";
+  ct+="<tr><td>Profit / unit</td><td>"+fmt(mc.profit)+"</td><td>"+fmt(cc.profit)+"</td></tr>";
+  ct+='<tr><td>Margin</td><td>'+mc.margin.toFixed(1)+'%</td><td>'+cc.margin.toFixed(1)+'%</td></tr>';
+  ct+="<tr><td>Monthly total (est.)</td><td>"+fmt(mc.profit*p.orders*(1-r))+"</td><td>"+fmt(cc.profit*p.orders*(1-r))+"</td></tr>";
+  $("compTable").innerHTML=ct;
+
+  renderProducts(p,sp,c);
+  saveInputs();
+}
+
+/* ---------- My Products (localStorage) ---------- */
+function loadProducts(){ try{return JSON.parse(localStorage.getItem("sstm_products")||"[]")}catch(e){return[]} }
+function storeProducts(a){ localStorage.setItem("sstm_products",JSON.stringify(a)); }
+function snapshotInputs(){
+  const p=getParams();
+  return {name:$("pname").value||"Unnamed",cost:p.cost,pack:p.pack,weightG:p.weightG,step:p.step,
+    aboveRate:p.aboveRate,margin:p.margin,orders:p.orders,compPrice:p.compPrice,beatBy:p.beatBy,
+    compCost:p.compCost,compPack:p.compPack,returnRate:p.returnRate,
+    cprManual:p.cprAuto?"":p.cprManual,adSpend:p.adSpend,gstRate:p.gstRate,
+    itcProduct:p.itcProduct,itcFees:p.itcFees,date:new Date().toISOString().slice(0,10)};
+}
+function renderProducts(p,sp,c){
+  const arr=loadProducts();
+  if(!arr.length){$("prodList").innerHTML='<div class="hint">No saved products yet.</div>';return;}
+  $("prodList").innerHTML=arr.map((x,i)=>{
+    const cc=calc(solvePrice(x.margin,{...p,cost:x.cost,pack:x.pack,weightG:x.weightG,step:x.step,aboveRate:x.aboveRate,returnRate:x.returnRate,adSpend:x.adSpend,gstRate:x.gstRate,itcProduct:x.itcProduct,itcFees:x.itcFees,cprAuto:x.cprManual==="",cprManual:+x.cprManual||0}),{...p,cost:x.cost,pack:x.pack,weightG:x.weightG,step:x.step,aboveRate:x.aboveRate,returnRate:x.returnRate,adSpend:x.adSpend,gstRate:x.gstRate,itcProduct:x.itcProduct,itcFees:x.itcFees,cprAuto:x.cprManual==="",cprManual:+x.cprManual||0});
+    return '<div class="prod"><div class="pn">'+x.name+'</div><div class="pd">Margin '+x.margin+' target · '+x.date+'</div><div class="pa"><button class="btn small ghost" onclick="editProduct('+i+')">Edit</button><button class="btn small ghost" onclick="delProduct('+i+')">Delete</button></div></div>';
+  }).join("");
+}
+function editProduct(i){
+  const x=loadProducts()[i]; if(!x)return;
+  $("pname").value=x.name;$("cost").value=x.cost;$("pack").value=x.pack;$("weightG").value=x.weightG;
+  $("step").value=x.step;$("aboveRate").value=x.aboveRate;$("margin").value=x.margin;$("orders").value=x.orders;
+  $("compPrice").value=x.compPrice;$("beatBy").value=x.beatBy;$("compCost").value=x.compCost;$("compPack").value=x.compPack;
+  $("returnRate").value=x.returnRate;$("costPerReturn").value=x.cprManual;$("costPerReturn").dataset.auto=x.cprManual===""?"1":"0";
+  $("adSpend").value=x.adSpend;$("gstRate").value=x.gstRate;$("itcProduct").checked=x.itcProduct;$("itcFees").checked=x.itcFees;
+  render(); window.scrollTo({top:0,behavior:"smooth"});
+}
+function delProduct(i){ if(!confirm("Delete this product?"))return; const a=loadProducts(); a.splice(i,1); storeProducts(a); render(); }
+$("saveBtn").addEventListener("click",()=>{
+  const a=loadProducts(); const s=snapshotInputs();
+  const ix=a.findIndex(x=>x.name===s.name);
+  if(ix>=0)a[ix]=s; else a.push(s);
+  storeProducts(a); render(); alert("Saved: "+s.name);
+});
+
+/* ---------- persist inputs ---------- */
+function saveInputs(){ try{localStorage.setItem("sstm_inputs",JSON.stringify(snapshotInputs()));}catch(e){} }
+function restoreInputs(){
+  try{
+    const x=JSON.parse(localStorage.getItem("sstm_inputs")||"null"); if(!x)return;
+    ["pname","cost","pack","weightG","step","aboveRate","margin","orders","compPrice","beatBy","compCost","compPack","returnRate","adSpend","gstRate"].forEach(id=>{ if(x[{pname:"name",cost:"cost",pack:"pack",weightG:"weightG",step:"step",aboveRate:"aboveRate",margin:"margin",orders:"orders",compPrice:"compPrice",beatBy:"beatBy",compCost:"compCost",compPack:"compPack",returnRate:"returnRate",adSpend:"adSpend",gstRate:"gstRate"}[id]]!==undefined) $(id).value=x[{pname:"name",cost:"cost",pack:"pack",weightG:"weightG",step:"step",aboveRate:"aboveRate",margin:"margin",orders:"orders",compPrice:"compPrice",beatBy:"beatBy",compCost:"compCost",compPack:"compPack",returnRate:"returnRate",adSpend:"adSpend",gstRate:"gstRate"}[id]]; });
+    if(x.cprManual!==""){$("costPerReturn").value=x.cprManual;$("costPerReturn").dataset.auto="0";}
+    $("itcProduct").checked=x.itcProduct!==false; $("itcFees").checked=x.itcFees!==false;
+  }catch(e){}
+}
+
+/* ---------- auto cost-per-return placeholder ---------- */
+function refreshCprHint(){
+  if($("costPerReturn").dataset.auto!=="0"){
+    const p=getParams(); const sh=shipFee(p.weightG,p.step);
+    // hint only; actual auto value computed in calc()
+    $("costPerReturn").placeholder="auto ≈ ₹"+Math.round(sh.fee+closingFee(500)+0.18*(sh.fee+closingFee(500)));
+  }
+}
+
+["cost","pack","weightG","step","aboveRate","margin","orders","compPrice","beatBy","compCost","compPack","returnRate","costPerReturn","adSpend","gstRate","itcProduct","itcFees","pname"].forEach(id=>{
+  $(id).addEventListener("input",()=>{ if(id==="costPerReturn")$("costPerReturn").dataset.auto=$("costPerReturn").value===""?"1":"0"; render(); });
+  $(id).addEventListener("change",()=>render());
+});
+$("costPerReturn").dataset.auto="1";
+restoreInputs();
+render();
+</script>
+</body>
+</html>
