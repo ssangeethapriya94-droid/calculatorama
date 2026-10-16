@@ -107,6 +107,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
         <div class="rc-label">Recommended selling price</div>
         <div class="rc-price" id="bigPrice">₹–</div>
         <div class="rc-sub" id="marginLine"></div>
+        <div style="margin-top:14px"><button class="btn" id="saveBtnTop">Save this product</button></div>
       </div>
       <div class="rc-right">
         <div class="rc-label">Final profit after GST</div>
@@ -339,11 +340,13 @@ function editProduct(i){
   $("tabCalc").click(); render(); window.scrollTo({top:0,behavior:"smooth"});
 }
 function delProduct(i){ if(!confirm("Delete this product?"))return; const a=loadProducts(); a.splice(i,1); storeProducts(a); render(); }
-$("saveBtn").addEventListener("click",()=>{
+function saveCurrentProduct(){
   const a=loadProducts(), s=snapshotInputs(), ix=a.findIndex(x=>x.name===s.name);
   if(ix>=0)a[ix]=s; else a.push(s);
   storeProducts(a); render(); alert("Saved: "+s.name);
-});
+}
+$("saveBtn").addEventListener("click",saveCurrentProduct);
+$("saveBtnTop").addEventListener("click",()=>{ saveCurrentProduct(); $("tabProds").click(); });
 
 /* ---------- persist inputs ---------- */
 function saveInputs(){ try{localStorage.setItem("sstm_inputs",JSON.stringify(snapshotInputs()));}catch(e){} }
