@@ -84,22 +84,28 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 </style>
 </head>
 <body>
-<div class="topbar"><div class="wrap"><span class="appname">▦ Amazon Pricing Calculator</span></div></div>
+<div class="topbar"><div class="wrap"><span class="appname" id="appname">▦ Amazon Pricing Calculator</span></div></div>
 <div class="wrap">
 
   <div class="tabs">
-    <div class="tabs-left"><b>SS TRADERS MART</b><span>Amazon pricing desk</span></div>
+    <div class="tabs-left"><b>SS TRADERS MART</b><span id="deskLabel">Amazon pricing desk</span></div>
     <div class="pill">
       <button id="tabCalc" class="active">Calculator</button>
       <button id="tabProds">My Products <span class="cnt" id="prodCount">0</span></button>
     </div>
   </div>
+  <div style="display:flex;justify-content:center;margin:2px 0 8px">
+    <div class="pill">
+      <button id="platAmz" class="active">Amazon.in</button>
+      <button id="platFk">Flipkart</button>
+    </div>
+  </div>
 
   <div id="viewCalc">
     <div class="hero">
-      <div class="kicker">AMAZON INDIA PRICE BUILDER</div>
-      <h1>Build a price that pays.</h1>
-      <p>See every fee before you list, then keep the calculation with the product.</p>
+      <div class="kicker" id="heroKicker">AMAZON INDIA PRICE BUILDER</div>
+      <h1 id="heroTitle">Build a price that pays.</h1>
+      <p id="heroSub">See every fee before you list, then keep the calculation with the product.</p>
     </div>
 
     <div class="resultcard">
@@ -144,7 +150,16 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
             <div class="field"><label>Product cost (₹)</label><input id="cost" type="number" min="0" step="1" value="230"></div>
             <div class="field"><label>Packaging (₹)</label><input id="pack" type="number" min="0" step="1" value="15"></div>
             <div class="field"><label>Packed weight (g)</label><input id="weightG" type="number" min="1" step="1" value="1000"><div class="hint">Weigh it packed &amp; ready to ship.</div></div>
-            <div class="field"><label>STEP level</label><select id="step"><option value="standard" selected>Standard</option><option value="premium">Premium</option><option value="advanced">Advanced</option><option value="basic">Basic</option></select></div>
+            <div class="field" id="amzStepWrap"><label>STEP level</label><select id="step"><option value="standard" selected>Standard</option><option value="premium">Premium</option><option value="advanced">Advanced</option><option value="basic">Basic</option></select><div class="hint">Amazon Easy Ship speed tier.</div></div>
+            <div id="fkFields" style="display:none">
+              <div class="grid">
+                <div class="field"><label>Fulfilment</label><select id="fbf"><option value="0" selected>Non-FBF (self ship)</option><option value="1">FBF (Flipkart fulfilment)</option></select></div>
+                <div class="field"><label>Shipping zone</label><select id="zone"><option value="local">Local (same city)</option><option value="zonal">Zonal (same zone)</option><option value="national" selected>National (all India)</option></select><div class="hint">Flipkart shipping varies by zone — national is the safe estimate.</div></div>
+                <div class="field"><label>Payment type</label><select id="collType"><option value="prepaid" selected>Prepaid</option><option value="cod">COD</option></select></div>
+                <div class="field"><label>Collection fee %</label><input id="collRate" type="number" min="0" step="0.1" value="2"><div class="hint">Auto 2% prepaid / 2.5% COD — editable.</div></div>
+              </div>
+              <div class="warn">Fixed fee &amp; shipping slabs are from third-party rate guides (Gold tier) — confirm in Seller Hub before final pricing.</div>
+            </div>
           </div>
           <div class="field"><label>Referral fee % (only if price &gt; ₹1,000)</label><input id="aboveRate" type="number" min="0" step="0.1" value="10"><div class="hint">Home &amp; Kitchen ≤ ₹1,000 = 0% referral.</div></div>
         </div>
@@ -153,14 +168,14 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
           <h2><span class="num">02</span> GST</h2><p class="csub">Calculate tax and eligible input credit.</p>
           <div class="field"><label>Product GST rate %</label><select id="gstRate"><option>5</option><option>12</option><option selected>18</option><option>28</option></select></div>
           <div class="togglerow"><label class="toggle"><input type="checkbox" id="itcProduct" checked><span class="sl"></span></label><div><div class="tt">Supplier gives GST invoice</div><div class="ts">Claim ITC on product + packaging</div></div></div>
-          <div class="togglerow"><label class="toggle"><input type="checkbox" id="itcFees" checked><span class="sl"></span></label><div><div class="tt">Claim ITC on Amazon fees</div><div class="ts">Uses the GST already included in Amazon fees</div></div></div>
+          <div class="togglerow"><label class="toggle"><input type="checkbox" id="itcFees" checked><span class="sl"></span></label><div><div class="tt">Claim ITC on platform fees</div><div class="ts">Uses the GST already included in platform fees</div></div></div>
           <div class="note">Selling price includes GST. Output GST on sales minus ITC on purchases and Amazon fees = net GST you pay the government.</div>
         </div>
 
         <div class="card">
           <h2><span class="num">03</span> Returns &amp; ads</h2><p class="csub">Protect your price against returns; add future ad spend.</p>
           <div class="grid">
-            <div class="field"><label>Expected return rate %</label><input id="returnRate" type="number" min="0" max="100" step="0.5" value="10"><div class="hint">Amazon does not refund closing fee &amp; shipping on returns.</div></div>
+            <div class="field"><label>Expected return rate %</label><input id="returnRate" type="number" min="0" max="100" step="0.5" value="10"><div class="hint" id="retHint">Amazon does not refund closing fee &amp; shipping on returns.</div></div>
             <div class="field"><label>Cost per return ₹</label><input id="costPerReturn" type="number" min="0" step="1" value=""><div class="hint">Auto = shipping + closing + GST. You can type your own.</div></div>
             <div class="field"><label>Ad spend per order ₹</label><input id="adSpend" type="number" min="0" step="1" value="0"><div class="hint">Future Amazon ads — keep 0 if no ads.</div></div>
           </div>
@@ -181,7 +196,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
     <div class="card">
       <h2><span class="num">05</span> Suggested prices</h2><p class="csub">Compare margins — and monthly totals — side by side.</p>
       <div style="overflow-x:auto"><table id="suggTable"></table></div>
-      <div class="note">Profit = after Amazon fees, returns, ads &amp; GST. Monthly total = profit × completed sales. Rows below your competitor price are tagged.</div>
+      <div class="note" id="suggNote"></div>
     </div>
   </div>
 
@@ -194,11 +209,27 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
   </div>
 
 </div>
-<footer>Fee estimates per Amazon.in rate card (Easy Ship). Verify final fees in Seller Central.<br>Built for SS TRADERS MART.</footer>
+<footer id="footNote"></footer>
 <script>
-/* ---------- Verified Amazon.in fee logic (Easy Ship, Oct 2026) ---------- */
+/* ---------- Platform fee logic ----------
+   Amazon: verified on sell.amazon.in/fees-and-pricing (Oct 2026).
+   Flipkart: commission 0% below ₹1,000 (official, seller.flipkart.com/fees-and-commission, Oct 2026);
+   fixed-fee & shipping slabs from third-party rate guides (Gold tier) — verify in Seller Hub. */
+const state={platform:"amazon"};
 function closingFee(sp){ if(sp<=300) return 2; if(sp<=500) return 23; if(sp<=1000) return 48; return 79; }
-function referralFee(sp, rate){ return sp<=1000 ? 0 : sp*rate/100; }
+function referralFee(sp, rate, plat){ if(plat==="flipkart") return sp<1000?0:sp*rate/100; return sp<=1000?0:sp*rate/100; }
+function fixedFeeFK(sp, fbf){
+  const t=fbf?[9,14,24,50,70]:[11,18,30,65,90];
+  if(sp<=250) return t[0]; if(sp<=500) return t[1]; if(sp<=1000) return t[2]; if(sp<=5000) return t[3]; return t[4];
+}
+const FK_ZONE_NAMES={local:"Local",zonal:"Zonal",national:"National"};
+function fkShipFee(w, zone){
+  const M={local:[0,28,48,75,120],zonal:[0,40,63,98,145],national:[40,63,85,125,185]}[zone]||[40,63,85,125,185];
+  const names=["below 500 g","500 g–1 kg","1–2 kg","2–5 kg","above 5 kg"];
+  let i; if(w<500)i=0; else if(w<=1000)i=1; else if(w<=2000)i=2; else if(w<=5000)i=3; else i=4;
+  const fee=M[i];
+  return {fee, expl:w+" g → "+names[i]+", "+FK_ZONE_NAMES[zone]+" = "+(fee===0?"FREE":"₹"+fee)};
+}
 const SHIP_BASE={standard:[55,75,112],premium:[53,73,110],advanced:[53,73,110],basic:[59,79,116]};
 function shipFee(w, step){
   const b=SHIP_BASE[step]||SHIP_BASE.standard;
@@ -214,8 +245,11 @@ const fmt=n=>"₹"+(Math.round(n*100)/100).toLocaleString("en-IN",{maximumFracti
 
 function getParams(){
   return {
+    platform:state.platform,
     cost:+$("cost").value||0, pack:+$("pack").value||0,
     weightG:Math.max(1,+$("weightG").value||1), step:$("step").value,
+    fbf:$("fbf").value, zone:$("zone").value,
+    collType:$("collType").value, collRate:+$("collRate").value||0,
     aboveRate:+$("aboveRate").value||0, margin:+$("margin").value||32,
     orders:+$("orders").value||0,
     compPrice:+$("compPrice").value||0, beatBy:+$("beatBy").value||0,
@@ -232,12 +266,22 @@ function getParams(){
 function calc(sp,p,overrideCost,overridePack){
   const cost=overrideCost!==undefined?overrideCost:p.cost;
   const pack=overridePack!==undefined?overridePack:p.pack;
-  const referral=referralFee(sp,p.aboveRate), closing=closingFee(sp);
-  const sh=shipFee(p.weightG,p.step), shipping=sh.fee;
-  const gstFees=0.18*(referral+closing+shipping);
-  const totalFees=referral+closing+shipping+gstFees;
+  const plat=p.platform||"amazon";
+  const PN=plat==="flipkart"?"Flipkart":"Amazon";
+  let referral, closing, shipping, shipExpl, collection=0;
+  if(plat==="flipkart"){
+    referral=referralFee(sp,p.aboveRate,"flipkart");
+    closing=fixedFeeFK(sp,p.fbf==="1");
+    const sh=fkShipFee(p.weightG,p.zone); shipping=sh.fee; shipExpl=sh.expl;
+    collection=(sp+shipping)*p.collRate/100;
+  }else{
+    referral=referralFee(sp,p.aboveRate,"amazon"); closing=closingFee(sp);
+    const sh=shipFee(p.weightG,p.step); shipping=sh.fee; shipExpl=sh.expl;
+  }
+  const gstFees=0.18*(referral+closing+shipping+collection);
+  const totalFees=referral+closing+shipping+collection+gstFees;
   const r=p.returnRate/100;
-  const autoCpr=shipping+closing+0.18*(shipping+closing);
+  const autoCpr=plat==="flipkart"?(shipping+collection)*1.18:(shipping+closing)*1.18;
   const cpr=p.cprAuto?autoCpr:p.cprManual;
   const reserve=r>=1?Infinity:(r/(1-r))*cpr;
   const g=p.gstRate/(100+p.gstRate);
@@ -248,7 +292,7 @@ function calc(sp,p,overrideCost,overridePack){
   const payout=sp-totalFees;
   const profit=sp-totalFees-cost-pack-reserve-p.adSpend-netGST;
   const margin=sp>0?profit/sp*100:0;
-  return {referral,closing,shipping,gstFees,totalFees,reserve,outputGST,itcP,itcF,netGST,payout,profit,margin,cpr,shipExpl:sh.expl,cost,pack};
+  return {referral,closing,shipping,collection,gstFees,totalFees,reserve,outputGST,itcP,itcF,netGST,payout,profit,margin,cpr,shipExpl,cost,pack,PN};
 }
 
 function solvePrice(marginPct,p){
@@ -274,15 +318,15 @@ function render(){
   $("rcMonthly").textContent=fmt(monthly);
   $("rcSales").textContent=p.orders+" orders × "+Math.round((1-r)*100)+"% completion = "+Math.round(completed)+" sales";
 
-  const rows=[
-    ["Selling price",fmt(sp)],["Referral fee",fmt(c.referral)],["Closing fee",fmt(c.closing)],
-    ["Easy Ship shipping",fmt(c.shipping)],["GST on Amazon fees (18%)",fmt(c.gstFees)],
-    ["Total Amazon fees",fmt(c.totalFees)],["Payout (price − fees)",fmt(c.payout)],
+  const PN=c.PN;
+  const rows=[["Selling price",fmt(sp)],[(PN==="Flipkart"?"Commission":"Referral fee"),fmt(c.referral)],[(PN==="Flipkart"?"Fixed fee":"Closing fee"),fmt(c.closing)],[(PN==="Flipkart"?"Flipkart shipping":"Easy Ship shipping"),fmt(c.shipping)]];
+  if(PN==="Flipkart") rows.push(["Collection fee ("+p.collRate+"%)",fmt(c.collection)]);
+  rows.push(["GST on "+PN+" fees (18%)",fmt(c.gstFees)],["Total "+PN+" fees",fmt(c.totalFees)],["Payout (price − fees)",fmt(c.payout)],
     ["Product cost",fmt(c.cost)],["Packaging",fmt(c.pack)],
     ["Return reserve ("+p.returnRate+"%)",fmt(c.reserve)],["Ad spend / order",fmt(p.adSpend)],
     ["Output GST",fmt(c.outputGST)],["Less: ITC",fmt(c.itcP+c.itcF)],
     ["Net GST payable",fmt(c.netGST)+(c.netGST<0?" (ITC credit)":"")]
-  ];
+  );
   $("breakTable").innerHTML=rows.map(x=>"<tr><td>"+x[0]+"</td><td>"+x[1]+"</td></tr>").join("")+
     '<tr class="hl"><td>Final profit (after GST)</td><td>'+fmt(c.profit)+'</td></tr>';
   $("shipExpl").textContent="Shipping: "+c.shipExpl;
@@ -295,11 +339,12 @@ function render(){
     st+='<tr'+(m===p.margin?' class="trow"':"")+"><td><b>"+m+"%</b>"+(m===p.margin?' <span class="tag">your target</span>':"")+"</td><td>"+fmt(s2)+tag+"</td><td>"+fmt(c2.totalFees)+"</td><td>"+fmt(c2.profit)+"</td><td>"+fmt(mt)+"</td></tr>";
   });
   $("suggTable").innerHTML=st;
+  $("suggNote").textContent="Profit = after "+PN+" fees, returns, ads & GST. Monthly total = profit × completed sales. Rows below your competitor price are tagged.";
 
   const myP=Math.max(1,p.compPrice-p.beatBy);
   const mc=calc(myP,p), cc=calc(p.compPrice,p,p.compCost,p.compPack);
   $("compTable").innerHTML='<tr><th></th><th>You ('+fmt(myP)+')</th><th>Rival ('+fmt(p.compPrice)+')</th></tr>'+
-    "<tr><td>Amazon fees</td><td>"+fmt(mc.totalFees)+"</td><td>"+fmt(cc.totalFees)+"</td></tr>"+
+    "<tr><td>"+PN+" fees</td><td>"+fmt(mc.totalFees)+"</td><td>"+fmt(cc.totalFees)+"</td></tr>"+
     "<tr><td>Profit / unit</td><td>"+fmt(mc.profit)+"</td><td>"+fmt(cc.profit)+"</td></tr>"+
     '<tr><td>Margin</td><td>'+mc.margin.toFixed(1)+'%</td><td>'+cc.margin.toFixed(1)+'%</td></tr>'+
     "<tr><td>Monthly total</td><td>"+fmt(mc.profit*p.orders*(1-r))+"</td><td>"+fmt(cc.profit*p.orders*(1-r))+"</td></tr>";
@@ -312,12 +357,36 @@ function render(){
 $("tabCalc").addEventListener("click",()=>{ $("tabCalc").classList.add("active"); $("tabProds").classList.remove("active"); $("viewCalc").style.display=""; $("viewProds").style.display="none"; });
 $("tabProds").addEventListener("click",()=>{ $("tabProds").classList.add("active"); $("tabCalc").classList.remove("active"); $("viewProds").style.display=""; $("viewCalc").style.display="none"; });
 
+/* ---------- platform switch ---------- */
+function setPlatform(pl){
+  state.platform=pl;
+  const fk=pl==="flipkart";
+  $("platAmz").classList.toggle("active",!fk);
+  $("platFk").classList.toggle("active",fk);
+  $("amzStepWrap").style.display=fk?"none":"";
+  $("fkFields").style.display=fk?"":"none";
+  $("appname").textContent=fk?"▦ Flipkart Pricing Calculator":"▦ Amazon Pricing Calculator";
+  $("deskLabel").textContent=fk?"Flipkart pricing desk":"Amazon pricing desk";
+  $("heroKicker").textContent=fk?"FLIPKART PRICE BUILDER":"AMAZON INDIA PRICE BUILDER";
+  $("heroTitle").textContent=fk?"Price it right for Flipkart.":"Build a price that pays.";
+  $("heroSub").textContent=fk?"Flipkart fees, zone shipping & collection — all in one place.":"See every fee before you list, then keep the calculation with the product.";
+  $("retHint").textContent=fk?"Flipkart charges reverse shipping on returns — keep a return buffer.":"Amazon does not refund closing fee & shipping on returns.";
+  $("footNote").innerHTML=fk
+    ?"Flipkart: 0% commission below ₹1,000 (official). Fixed fee &amp; shipping slabs from third-party rate guides (Gold tier) — verify in Seller Hub. Penalties ₹30/60/90 per shipment for late dispatch / cancellation.<br>Built for SS TRADERS MART."
+    :"Fee estimates per Amazon.in rate card (Easy Ship). Verify final fees in Seller Central.<br>Built for SS TRADERS MART.";
+  render();
+}
+$("platAmz").addEventListener("click",()=>setPlatform("amazon"));
+$("platFk").addEventListener("click",()=>setPlatform("flipkart"));
+$("collType").addEventListener("change",()=>{ $("collRate").value=$("collType").value==="cod"?2.5:2; render(); });
+
 /* ---------- My Products (localStorage) ---------- */
 function loadProducts(){ try{return JSON.parse(localStorage.getItem("sstm_products")||"[]")}catch(e){return[]} }
 function storeProducts(a){ localStorage.setItem("sstm_products",JSON.stringify(a)); }
 function snapshotInputs(){
   const p=getParams();
-  return {name:$("pname").value||"Unnamed",cost:p.cost,pack:p.pack,weightG:p.weightG,step:p.step,
+  return {name:$("pname").value||"Unnamed",platform:p.platform,cost:p.cost,pack:p.pack,weightG:p.weightG,step:p.step,
+    fbf:p.fbf,zone:p.zone,collType:p.collType,collRate:p.collRate,
     aboveRate:p.aboveRate,margin:p.margin,orders:p.orders,compPrice:p.compPrice,beatBy:p.beatBy,
     compCost:p.compCost,compPack:p.compPack,returnRate:p.returnRate,
     cprManual:p.cprAuto?"":p.cprManual,adSpend:p.adSpend,gstRate:p.gstRate,
@@ -327,12 +396,14 @@ function renderProducts(){
   const arr=loadProducts();
   $("prodCount").textContent=arr.length;
   $("prodList").innerHTML=arr.length?arr.map((x,i)=>
-    '<div class="prod"><div class="pn">'+x.name+'</div><div class="pd">Margin '+x.margin+' target · '+x.date+'</div><div class="pa"><button class="btn small ghost" onclick="editProduct('+i+')">Edit</button><button class="btn small ghost" onclick="delProduct('+i+')">Delete</button></div></div>'
+    '<div class="prod"><div class="pn">'+x.name+'</div><div class="pd">'+(x.platform==="flipkart"?"Flipkart":"Amazon")+' · Margin '+x.margin+' target · '+x.date+'</div><div class="pa"><button class="btn small ghost" onclick="editProduct('+i+')">Edit</button><button class="btn small ghost" onclick="delProduct('+i+')">Delete</button></div></div>'
   ).join(""):'<div class="csub">No saved products yet.</div>';
 }
 function editProduct(i){
   const x=loadProducts()[i]; if(!x)return;
+  setPlatform(x.platform||"amazon");
   $("pname").value=x.name;$("cost").value=x.cost;$("pack").value=x.pack;$("weightG").value=x.weightG;
+  $("fbf").value=x.fbf||"0";$("zone").value=x.zone||"national";$("collType").value=x.collType||"prepaid";$("collRate").value=x.collRate||2;
   $("step").value=x.step;$("aboveRate").value=x.aboveRate;$("margin").value=x.margin;$("orders").value=x.orders;
   $("compPrice").value=x.compPrice;$("beatBy").value=x.beatBy;$("compCost").value=x.compCost;$("compPack").value=x.compPack;
   $("returnRate").value=x.returnRate;$("costPerReturn").value=x.cprManual;$("costPerReturn").dataset.auto=x.cprManual===""?"1":"0";
@@ -350,17 +421,18 @@ $("saveBtnTop").addEventListener("click",()=>{ saveCurrentProduct(); $("tabProds
 
 /* ---------- persist inputs ---------- */
 function saveInputs(){ try{localStorage.setItem("sstm_inputs",JSON.stringify(snapshotInputs()));}catch(e){} }
-const KEYMAP={pname:"name",cost:"cost",pack:"pack",weightG:"weightG",step:"step",aboveRate:"aboveRate",margin:"margin",orders:"orders",compPrice:"compPrice",beatBy:"beatBy",compCost:"compCost",compPack:"compPack",returnRate:"returnRate",adSpend:"adSpend",gstRate:"gstRate"};
+const KEYMAP={pname:"name",cost:"cost",pack:"pack",weightG:"weightG",step:"step",fbf:"fbf",zone:"zone",collType:"collType",collRate:"collRate",aboveRate:"aboveRate",margin:"margin",orders:"orders",compPrice:"compPrice",beatBy:"beatBy",compCost:"compCost",compPack:"compPack",returnRate:"returnRate",adSpend:"adSpend",gstRate:"gstRate"};
 function restoreInputs(){
   try{
     const x=JSON.parse(localStorage.getItem("sstm_inputs")||"null"); if(!x)return;
+    if(x.platform) setPlatform(x.platform);
     Object.keys(KEYMAP).forEach(id=>{ if(x[KEYMAP[id]]!==undefined) $(id).value=x[KEYMAP[id]]; });
     if(x.cprManual!==""){$("costPerReturn").value=x.cprManual;$("costPerReturn").dataset.auto="0";}
     $("itcProduct").checked=x.itcProduct!==false; $("itcFees").checked=x.itcFees!==false;
   }catch(e){}
 }
 
-["cost","pack","weightG","step","aboveRate","margin","orders","compPrice","beatBy","compCost","compPack","returnRate","costPerReturn","adSpend","gstRate","itcProduct","itcFees","pname"].forEach(id=>{
+["cost","pack","weightG","step","fbf","zone","collRate","aboveRate","margin","orders","compPrice","beatBy","compCost","compPack","returnRate","costPerReturn","adSpend","gstRate","itcProduct","itcFees","pname"].forEach(id=>{
   $(id).addEventListener("input",()=>{ if(id==="costPerReturn")$("costPerReturn").dataset.auto=$("costPerReturn").value===""?"1":"0"; render(); });
   $(id).addEventListener("change",()=>render());
 });
