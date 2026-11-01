@@ -161,6 +161,14 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
               <div class="warn">Fixed fee &amp; shipping slabs are from third-party rate guides (Gold tier) — confirm in Seller Hub before final pricing.</div>
             </div>
           </div>
+          <div id="volFields">
+            <div class="grid">
+              <div class="field"><label>Packed length (cm) — optional</label><input id="dimL" type="number" min="0" step="0.1" placeholder="e.g. 30"></div>
+              <div class="field"><label>Packed breadth (cm) — optional</label><input id="dimB" type="number" min="0" step="0.1" placeholder="e.g. 20"></div>
+              <div class="field"><label>Packed height (cm) — optional</label><input id="dimH" type="number" min="0" step="0.1" placeholder="e.g. 15"></div>
+            </div>
+            <div class="expl" id="volExpl">Amazon Easy Ship only: volumetric weight = Length × Breadth × Height / 5000 (cm → kg). Shipping uses the higher of actual packed weight and volumetric weight. Leave all three blank if size is unknown — then packed weight only is used. Flipkart shipping still uses packed weight.</div>
+          </div>
           <div class="field"><label>Referral fee % (only if price &gt; ₹1,000)</label><input id="aboveRate" type="number" min="0" step="0.1" value="10"><div class="hint">Home &amp; Kitchen ≤ ₹1,000 = 0% referral.</div></div>
         </div>
 
@@ -248,6 +256,7 @@ function getParams(){
     platform:state.platform,
     cost:+$("cost").value||0, pack:+$("pack").value||0,
     weightG:Math.max(1,+$("weightG").value||1), step:$("step").value,
+    dimL:+$("dimL").value||0, dimB:+$("dimB").value||0, dimH:+$("dimH").value||0,
     fbf:$("fbf").value, zone:$("zone").value,
     collType:$("collType").value, collRate:+$("collRate").value||0,
     aboveRate:+$("aboveRate").value||0, margin:+$("margin").value||32,
@@ -269,6 +278,9 @@ function calc(sp,p,overrideCost,overridePack){
   const plat=p.platform||"amazon";
   const PN=plat==="flipkart"?"Flipkart":"Amazon";
   let referral, closing, shipping, shipExpl, collection=0;
+  // Volumetric weight (Amazon Easy Ship only): L x B x H cm / 5000 = kg, so grams = L x B x H / 5.
+  const volG=(p.dimL>0&&p.dimB>0&&p.dimH>0)?Math.ceil(p.dimL*p.dimB*p.dimH/5):0;
+  let chargeG=p.weightG;
   if(plat==="flipkart"){
     referral=referralFee(sp,p.aboveRate,"flipkart");
     closing=fixedFeeFK(sp,p.fbf==="1");
@@ -276,7 +288,9 @@ function calc(sp,p,overrideCost,overridePack){
     collection=(sp+shipping)*p.collRate/100;
   }else{
     referral=referralFee(sp,p.aboveRate,"amazon"); closing=closingFee(sp);
-    const sh=shipFee(p.weightG,p.step); shipping=sh.fee; shipExpl=sh.expl;
+    chargeG=Math.max(p.weightG,volG);
+    const sh=shipFee(chargeG,p.step); shipping=sh.fee;
+    shipExpl=(volG>0?("Actual "+p.weightG+" g, volumetric "+volG+" g → chargeable "+chargeG+" g; "):"")+sh.expl;
   }
   const gstFees=0.18*(referral+closing+shipping+collection);
   const totalFees=referral+closing+shipping+collection+gstFees;
@@ -292,7 +306,7 @@ function calc(sp,p,overrideCost,overridePack){
   const payout=sp-totalFees;
   const profit=sp-totalFees-cost-pack-reserve-p.adSpend-netGST;
   const margin=sp>0?profit/sp*100:0;
-  return {referral,closing,shipping,collection,gstFees,totalFees,reserve,outputGST,itcP,itcF,netGST,payout,profit,margin,cpr,shipExpl,cost,pack,PN};
+  return {referral,closing,shipping,collection,gstFees,totalFees,reserve,outputGST,itcP,itcF,netGST,payout,profit,margin,cpr,shipExpl,cost,pack,PN,chargeG,volG};
 }
 
 function solvePrice(marginPct,p){
@@ -364,6 +378,7 @@ function setPlatform(pl){
   $("platAmz").classList.toggle("active",!fk);
   $("platFk").classList.toggle("active",fk);
   $("amzStepWrap").style.display=fk?"none":"";
+  $("volFields").style.display=fk?"none":"";
   $("fkFields").style.display=fk?"":"none";
   $("appname").textContent=fk?"▦ Flipkart Pricing Calculator":"▦ Amazon Pricing Calculator";
   $("deskLabel").textContent=fk?"Flipkart pricing desk":"Amazon pricing desk";
@@ -385,7 +400,7 @@ function loadProducts(){ try{return JSON.parse(localStorage.getItem("sstm_produc
 function storeProducts(a){ localStorage.setItem("sstm_products",JSON.stringify(a)); }
 function snapshotInputs(){
   const p=getParams();
-  return {name:$("pname").value||"Unnamed",platform:p.platform,cost:p.cost,pack:p.pack,weightG:p.weightG,step:p.step,
+  return {name:$("pname").value||"Unnamed",platform:p.platform,cost:p.cost,pack:p.pack,weightG:p.weightG,step:p.step,dimL:p.dimL,dimB:p.dimB,dimH:p.dimH,
     fbf:p.fbf,zone:p.zone,collType:p.collType,collRate:p.collRate,
     aboveRate:p.aboveRate,margin:p.margin,orders:p.orders,compPrice:p.compPrice,beatBy:p.beatBy,
     compCost:p.compCost,compPack:p.compPack,returnRate:p.returnRate,
@@ -402,7 +417,7 @@ function renderProducts(){
 function editProduct(i){
   const x=loadProducts()[i]; if(!x)return;
   setPlatform(x.platform||"amazon");
-  $("pname").value=x.name;$("cost").value=x.cost;$("pack").value=x.pack;$("weightG").value=x.weightG;
+  $("pname").value=x.name;$("cost").value=x.cost;$("pack").value=x.pack;$("weightG").value=x.weightG;$("dimL").value=x.dimL||"";$("dimB").value=x.dimB||"";$("dimH").value=x.dimH||"";
   $("fbf").value=x.fbf||"0";$("zone").value=x.zone||"national";$("collType").value=x.collType||"prepaid";$("collRate").value=x.collRate||2;
   $("step").value=x.step;$("aboveRate").value=x.aboveRate;$("margin").value=x.margin;$("orders").value=x.orders;
   $("compPrice").value=x.compPrice;$("beatBy").value=x.beatBy;$("compCost").value=x.compCost;$("compPack").value=x.compPack;
@@ -421,7 +436,7 @@ $("saveBtnTop").addEventListener("click",()=>{ saveCurrentProduct(); $("tabProds
 
 /* ---------- persist inputs ---------- */
 function saveInputs(){ try{localStorage.setItem("sstm_inputs",JSON.stringify(snapshotInputs()));}catch(e){} }
-const KEYMAP={pname:"name",cost:"cost",pack:"pack",weightG:"weightG",step:"step",fbf:"fbf",zone:"zone",collType:"collType",collRate:"collRate",aboveRate:"aboveRate",margin:"margin",orders:"orders",compPrice:"compPrice",beatBy:"beatBy",compCost:"compCost",compPack:"compPack",returnRate:"returnRate",adSpend:"adSpend",gstRate:"gstRate"};
+const KEYMAP={pname:"name",cost:"cost",pack:"pack",weightG:"weightG",step:"step",dimL:"dimL",dimB:"dimB",dimH:"dimH",fbf:"fbf",zone:"zone",collType:"collType",collRate:"collRate",aboveRate:"aboveRate",margin:"margin",orders:"orders",compPrice:"compPrice",beatBy:"beatBy",compCost:"compCost",compPack:"compPack",returnRate:"returnRate",adSpend:"adSpend",gstRate:"gstRate"};
 function restoreInputs(){
   try{
     const x=JSON.parse(localStorage.getItem("sstm_inputs")||"null"); if(!x)return;
@@ -432,7 +447,7 @@ function restoreInputs(){
   }catch(e){}
 }
 
-["cost","pack","weightG","step","fbf","zone","collRate","aboveRate","margin","orders","compPrice","beatBy","compCost","compPack","returnRate","costPerReturn","adSpend","gstRate","itcProduct","itcFees","pname"].forEach(id=>{
+["cost","pack","weightG","dimL","dimB","dimH","step","fbf","zone","collRate","aboveRate","margin","orders","compPrice","beatBy","compCost","compPack","returnRate","costPerReturn","adSpend","gstRate","itcProduct","itcFees","pname"].forEach(id=>{
   $(id).addEventListener("input",()=>{ if(id==="costPerReturn")$("costPerReturn").dataset.auto=$("costPerReturn").value===""?"1":"0"; render(); });
   $(id).addEventListener("change",()=>render());
 });
